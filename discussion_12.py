@@ -16,7 +16,8 @@ def setUpDatabase(db_name):
 # TASK 1
 # CREATE TABLE FOR EMPLOYEE INFORMATION IN DATABASE AND ADD INFORMATION
 def create_employee_table(cur, conn):
-    pass
+    cur.execute("CREATE TABLE IF NOT EXISTS Employee (employee_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, job_id INTEGER, hire_date TEXT, salary NUMERIC)")
+    conn.commit()
 
 # ADD EMPLOYEE'S INFORMTION TO THE TABLE
 
@@ -27,16 +28,26 @@ def add_employee(filename, cur, conn):
     file_data = f.read()
     f.close()
     # THE REST IS UP TO YOU
-    pass
+    data = json.loads(file_data)
+    for dict in data:
+        cur.execute('INSERT OR IGNORE INTO Employee (employee_id, first_name, last_name, job_id, hire_date, salary) VALUES (?,?,?,?,?,?)', (dict["employee_id"], dict["first_name"], dict["last_name"], dict["job_id"], dict["hire_date"], dict["salary"]))
+    conn.commit()
 
 # TASK 2: GET JOB AND HIRE_DATE INFORMATION
 def job_and_hire_date(cur, conn):
-    pass
+    cur.execute("SELECT Employees.hire_date, Jobs.job_title FROM Employees JOIN Jobs \
+    ON Employees.job_id=Jobs.jod_id ORDER BY Employees.hire_date ASC LIMIT 1")
+    res = cur.fetchone()
+    return res
 
 # TASK 3: IDENTIFY PROBLEMATIC SALARY DATA
 # Apply JOIN clause to match individual employees
 def problematic_salary(cur, conn):
-    pass
+    cur.execute("SELECT Employee.first_name, Employee.last_name FROM Employee JOIN Jobs \
+    ON Employee.job_id=Jobs.job_id WHERE Employee.salary > Jobs.min_salary \
+    AND Employee.salary < Jobs.max_salary")
+    res = cur.fetchall()
+    return res
 
 # TASK 4: VISUALIZATION
 def visualization_salary_data(cur, conn):
